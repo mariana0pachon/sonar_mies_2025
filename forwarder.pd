@@ -1,0 +1,38 @@
+#N canvas 214 109 1153 611 12;
+#X obj 220 120 adc~;
+#X obj 60 210 bp~ 100 10;
+#X obj 210 260 env~ 256;
+#X obj 360 260 env~ 256;
+#X obj 60 310 threshold~ 60 1 0;
+#X obj 210 310 threshold~ 50 1 0;
+#X obj 360 310 threshold~ 40 1 0;
+#X obj 60 360 bang;
+#X obj 210 360 bang;
+#X obj 360 360 bang;
+#X obj 60 410 print Bass;
+#X obj 210 410 print Mids;
+#X obj 360 410 print Highs;
+#X obj 220 170 fft~;
+#N canvas 0 0 450 300 (subpatch) 0;
+#X array array1 100 float 3 black black;
+#A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0;
+#X coords 0 1 100 -1 200 140 1;
+#X restore 640 60 graph;
+#X obj 60 260 env~ 256;
+#X connect 0 0 13 0;
+#X connect 1 0 15 0;
+#X connect 2 0 5 0;
+#X connect 3 0 6 0;
+#X connect 4 0 7 0;
+#X connect 5 0 8 0;
+#X connect 6 0 9 0;
+#X connect 7 0 10 0;
+#X connect 8 0 11 0;
+#X connect 9 0 12 0;
+#X connect 13 0 1 0;
+#X connect 13 0 2 0;
+#X connect 13 0 3 0;
+#X connect 15 0 4 0;
