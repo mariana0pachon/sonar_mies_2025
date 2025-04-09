@@ -1,28 +1,40 @@
-int vibratorPin = 5;
-const int maxBeats = 7;
-int patternBeats;
-int intensities[maxBeats];
-int durations[maxBeats];
-int pauses[maxBeats];
+int vibratorPin1 = 5;
+int vibratorPin2 = 6;
+int ledPin1 = 7;
+int ledPin2 = 8;
 
 void setup() {
-  pinMode(vibratorPin, OUTPUT);
-  randomSeed(analogRead(A0));
+  pinMode(vibratorPin1, OUTPUT);
+  pinMode(vibratorPin2, OUTPUT);
+  pinMode(ledPin1, OUTPUT);
+  pinMode(ledPin2, OUTPUT);
 
-  patternBeats = random(3, maxBeats + 1);
-
-  for (int i = 0; i < patternBeats; i++) {
-    intensities[i] = random(100, 256);
-    durations[i] = random(50, 300);
-    pauses[i] = random(100, 400);
-  }
+  randomSeed(analogRead(A0)); // Random "simulated beat input"
 }
 
 void loop() {
-  for (int i = 0; i < patternBeats; i++) {
-    analogWrite(vibratorPin, intensities[i]);
-    delay(durations[i]);
-    analogWrite(vibratorPin, 0);
-    delay(pauses[i]);
+  // Simulate a beat
+  int simulatedVolume = random(100, 256);     // Map from music volume
+  int duration = random(50, 150);             // Simulate beat length
+  int pause = random(100, 300);               // Pause between beats
+
+  // Alternate vibrators
+  static bool toggle = false;
+
+  if (toggle) {
+    analogWrite(vibratorPin1, simulatedVolume);
+    digitalWrite(ledPin1, HIGH);
+    delay(duration);
+    analogWrite(vibratorPin1, 0);
+    digitalWrite(ledPin1, LOW);
+  } else {
+    analogWrite(vibratorPin2, simulatedVolume);
+    digitalWrite(ledPin2, HIGH);
+    delay(duration);
+    analogWrite(vibratorPin2, 0);
+    digitalWrite(ledPin2, LOW);
   }
+
+  toggle = !toggle; // alternate for next beat
+  delay(pause);
 }
