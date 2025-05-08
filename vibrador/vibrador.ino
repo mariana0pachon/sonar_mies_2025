@@ -1,40 +1,63 @@
-int vibratorPin1 = 5;
-int vibratorPin2 = 6;
-int ledPin1 = 7;
-int ledPin2 = 8;
+#include <WiFi.h>
+#include <Arduino.h>
+
+const char* ssid = "Sonar_Mies";
+const char* password = "SonarMies2025";
+
+//variables para pin 21 (conectado a IN1 en driver) - control MOTOR A
+const int in1_Channel = 0;
+const int in1_Pin = 21;
+const int in1_frequency = 5000;
+const int in1_resolution = 8;
+
+//variables para pin x (conectado a IN3 en driver) - control MOTOR B
+const int in3_Channel = 1;  // creo que no hay que repetir numero de canal por eso pongo 1
+const int in3_Pin = 0;      //revisar cual es el pin conectado a IN3
+const int in3_frequency = 5000;
+const int in3_resolution = 8;
 
 void setup() {
-  pinMode(vibratorPin1, OUTPUT);
-  pinMode(vibratorPin2, OUTPUT);
-  pinMode(ledPin1, OUTPUT);
-  pinMode(ledPin2, OUTPUT);
+  Serial.begin(115200);
+  delay(1000);
 
-  randomSeed(analogRead(A0)); // Random "simulated beat input"
+  Serial.println("Connecting to WiFi...");
+  WiFi.begin(ssid, password);
+
+  int attempts = 0;
+  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+    delay(500);
+    Serial.print(".");
+    attempts++;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nConnected to WiFi!");
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\nFailed to connect to WiFi.");
+  }
+
+  //declarar pin como pwm
+  ledcSetup(in1_Channel, in1_frequency, in1_resolution);
+  ledcAttachPin(in1_Pin, in1_Channel);
+
+  //declarar pin como pwm
+  ledcSetup(in3_Channel, in3_frequency, in3_resolution);
+  ledcAttachPin(in3_Pin, in3_Channel);
 }
 
 void loop() {
-  // Simulate a beat
-  int simulatedVolume = random(100, 256);     // Map from music volume
-  int duration = random(50, 150);             // Simulate beat length
-  int pause = random(100, 300);               // Pause between beats
-
-  // Alternate vibrators
-  static bool toggle = false;
-
-  if (toggle) {
-    analogWrite(vibratorPin1, simulatedVolume);
-    digitalWrite(ledPin1, HIGH);
-    delay(duration);
-    analogWrite(vibratorPin1, 0);
-    digitalWrite(ledPin1, LOW);
-  } else {
-    analogWrite(vibratorPin2, simulatedVolume);
-    digitalWrite(ledPin2, HIGH);
-    delay(duration);
-    analogWrite(vibratorPin2, 0);
-    digitalWrite(ledPin2, LOW);
+  //ciclo para subir y bajar la potencia del motor
+  for (int ciclo = 0; ciclo <= 255; ciclo++) {
+    ledcWrite(in1_Channel, ciclo);  //esto funciona como analogWrite
+    //ledcWrite(in3_Channel, ciclo);
+    delay(10);
   }
 
-  toggle = !toggle; // alternate for next beat
-  delay(pause);
+  for (int ciclo = 255; ciclo >= 0; ciclo--) {
+    ledcWrite(in1_Channel, ciclo);  //motor A
+    //ledcWrite(in3_Channel, ciclo); //motor B
+    delay(10);
+  }
 }
