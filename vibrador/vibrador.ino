@@ -1,20 +1,19 @@
+#include "driver/ledc.h"
 #include <WiFi.h>
 #include <Arduino.h>
 
 const char* ssid = "Sonar_Mies";
 const char* password = "SonarMies2025";
 
-//variables para pin 21 (conectado a IN1 en driver) - control MOTOR A
-const int in1_Channel = 0;
-const int in1_Pin = 21;
-const int in1_frequency = 5000;
-const int in1_resolution = 8;
+// PWM configuration constants
+const int pwm_frequency = 5000;
+const int pwm_resolution = 8;
 
-//variables para pin x (conectado a IN3 en driver) - control MOTOR B
-const int in3_Channel = 1;  // creo que no hay que repetir numero de canal por eso pongo 1
-const int in3_Pin = 0;      //revisar cual es el pin conectado a IN3
-const int in3_frequency = 5000;
-const int in3_resolution = 8;
+const int motorCount = 5;
+
+// Motor pins and channels
+const int motorPins[motorCount] = {21, 17, 14, 26, 33};
+const int motorChannels[motorCount] = {0, 1, 2, 3, 4};  // Use different LEDC channels for each motor
 
 void setup() {
   Serial.begin(115200);
@@ -38,26 +37,27 @@ void setup() {
     Serial.println("\nFailed to connect to WiFi.");
   }
 
-  //declarar pin como pwm
-  ledcSetup(in1_Channel, in1_frequency, in1_resolution);
-  ledcAttachPin(in1_Pin, in1_Channel);
-
-  //declarar pin como pwm
-  ledcSetup(in3_Channel, in3_frequency, in3_resolution);
-  ledcAttachPin(in3_Pin, in3_Channel);
+  // Setup PWM for each motor
+  for (int i = 0; i < motorCount; i++) {
+    ledcSetup(motorChannels[i], pwm_frequency, pwm_resolution);
+    ledcAttachPin(motorPins[i], motorChannels[i]);
+  }
 }
 
 void loop() {
-  //ciclo para subir y bajar la potencia del motor
+  // Ramp up PWM for all motors
   for (int ciclo = 0; ciclo <= 255; ciclo++) {
-    ledcWrite(in1_Channel, ciclo);  //esto funciona como analogWrite
-    //ledcWrite(in3_Channel, ciclo);
+    for (int i = 0; i < motorCount; i++) {
+      ledcWrite(motorChannels[i], ciclo);
+    }
     delay(10);
   }
 
+  // Ramp down PWM for all motors
   for (int ciclo = 255; ciclo >= 0; ciclo--) {
-    ledcWrite(in1_Channel, ciclo);  //motor A
-    //ledcWrite(in3_Channel, ciclo); //motor B
+    for (int i = 0; i < motorCount; i++) {
+      ledcWrite(motorChannels[i], ciclo);
+    }
     delay(10);
   }
 }
