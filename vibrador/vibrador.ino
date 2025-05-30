@@ -54,37 +54,30 @@ void setup() {
   Serial.println(localPort);
 }
 
-void handleEnvMessage(OSCMessage& msg) {
+void handleMessage(OSCMessage& msg, String type) {
   if (msg.size() > 0 && msg.isFloat(0)) {
     float value = msg.getFloat(0);
     value = constrain(value, 0.0, 1.0);  // Clamp between 0 and 1
     int pwmValue = (int)(value * 255);
 
-    Serial.print("Received /env value: ");
+    Serial.print("Received ");
+    Serial.print(type);
+    Serial.print(" value: ");
     Serial.print(value);
     Serial.print(" -> PWM: ");
     Serial.println(pwmValue);
 
-    //for (int i = 0; i < motorCount; i++) {
-    ledcWrite(motorChannels[1], pwmValue);
-    //}
-  }
-}
-
-void handleHiMessage(OSCMessage& msg) {
-  if (msg.size() > 0 && msg.isFloat(0)) {
-    float value = msg.getFloat(0);
-    value = constrain(value, 0.0, 1.0);  // Clamp between 0 and 1
-    int pwmValue = (int)(value * 255);
-
-    Serial.print("Received /hi value: ");
-    Serial.print(value);
-    Serial.print(" -> PWM: ");
-    Serial.println(pwmValue);
-
-    //for (int i = 0; i < motorCount; i++) {
-    ledcWrite(motorChannels[0], pwmValue);
-    //}
+    if (type == "/hi") {
+      ledcWrite(motorChannels[0], pwmValue);
+    } else if (type == "/lo") {
+      ledcWrite(motorChannels[1], pwmValue);
+    } else if (type == "/mid") {
+      ledcWrite(motorChannels[2], pwmValue);
+    } else if (type == "/env") {
+      ledcWrite(motorChannels[3], pwmValue);
+    } else if (type == "/tri") {
+      ledcWrite(motorChannels[4], pwmValue);
+    }
   }
 }
 
@@ -101,11 +94,23 @@ void loop() {
       char address[64];
       msg.getAddress(address, 0);
 
-      if (strcmp(address, "/env") == 0) {
-        handleEnvMessage(msg);
-      }
       if (strcmp(address, "/hi") == 0) {
-        handleHiMessage(msg);
+        handleMessage(msg, "/hi");
+      }
+      if (strcmp(address, "/lo") == 0) {
+        handleMessage(msg, "/lo");
+      }
+      if (strcmp(address, "/mid") == 0) {
+        handleMessage(msg, "/mid");
+      }
+      if (strcmp(address, "/env") == 0) {
+        handleMessage(msg, "/env");
+      }
+      if (strcmp(address, "/tri") == 0) {
+        handleMessage(msg, "/tri");
+      }
+      if (strcmp(address, "/test") == 0) {
+        handleMessage(msg, "/test");
       }
     }
   }
