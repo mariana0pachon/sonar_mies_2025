@@ -13,7 +13,7 @@ const int pwm_frequency = 5000;
 const int pwm_resolution = 8;
 
 const int motorCount = 3;
-const int motorPins[motorCount] = { 24, 17, 23 };
+const int motorPins[motorCount] = { 4, 17, 23 };
 const int motorChannels[motorCount] = { 0, 1, 2 };
 
 // OSC
